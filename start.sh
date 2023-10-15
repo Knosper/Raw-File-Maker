@@ -1,1 +1,1 @@
-g++ FileMaker.cpp -o FileMaker
+g++ FileMaker.cpp -Wall -Wextra -o FileMaker
