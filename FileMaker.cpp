@@ -8,9 +8,9 @@ static std::string prepare_name(std::string s)
     while (i < len)
     {
         if (!isalpha(s[i]) && !isdigit(s[i]))
-            tmp[i] = toupper(s[i]);
+            tmp.push_back(toupper(s[i]));
         else
-            tmp[i] = s[i];
+            tmp.push_back(s[i]);
         i++;
     }
     return (tmp);
@@ -22,7 +22,7 @@ static int check_str(const std::string s)
     int len = s.size();
     while (i < len)
     {
-        if (!isdigit(s[i]) || i > 2)
+        if (!isdigit(s[i]) || i > 3)
             return (1);
         i++;
     }
@@ -98,7 +98,7 @@ int FileMaker::init()
     std::cout << BOLD_YELLOW << "Create multiple ones? How many?\n\n";
     std::cin >> tmp;
     std::cout << RESET_COLOR;
-    if (check_str(tmp))
+    if (!check_str(tmp))
         _count = atoi(tmp.c_str());
     else
         _count = 1;
@@ -156,29 +156,45 @@ int FileMaker::create_h()
     std::ofstream output(_function_name + "." + _language);
     if (output.is_open())
     {
-        std::string capitalized = prepare_name(_language);
+        std::string capitalized = prepare_name(_function_name);
+        std::cout << "TEST:\n" << capitalized << std::endl;
         output << "#ifndef " << capitalized << "_H\n" << "# define " << capitalized << "_H\n\n\n" << "#endif";
+        output.close();
+        return (0);
     }
-    return (0);
+    return (1);
 }
 
 int FileMaker::create_hpp()
 {
-    return (0);
+    std::ofstream output(_function_name + "." + _language);
+    if (output.is_open())
+    {
+        output << "#pragma once\n\n" << "class " << _function_name << "\n{\npublic:\n};";
+        output.close();
+        return (0);
+    }
+    return (1);
 }
 
 int FileMaker::create_files()
 {
     int ret = 0;
-    if (_language[0] == 'c')
-        ret = create_cpp_c();
-    else if (_language == "h")
-        ret = create_h();
-    else
-        ret = create_hpp();
-    if (ret == EXIT_SUCCESS)
-        std::cout << "File created and written successfully." << std::endl;
-    else
-        std::cout << "File creation failed." << std::endl;
+    std::cout << "count = " << _count << std::endl;
+    while (_count != 0)
+    {
+        if (_language[0] == 'c')
+            ret = create_cpp_c();
+        else if (_language == "h")
+            ret = create_h();
+        else
+            ret = create_hpp();
+        if (ret == EXIT_SUCCESS)
+            std::cout << "File created and written successfully." << std::endl;
+        else
+            std::cout << "File creation failed." << std::endl;
+        _count--;
+        _function_name.push_back('_');
+    }
     return (0);
 }
